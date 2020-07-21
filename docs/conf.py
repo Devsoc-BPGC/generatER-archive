@@ -129,7 +129,7 @@ latex_elements = {
 latex_documents = [
     (master_doc, 'generater.tex',
      'GeneratER Documentation',
-     'Developers' Society BITS Goa, DevSoc', 'manual'),
+     "Developers' Society BITS Goa, DevSoc", 'manual'),
 ]
 
 
