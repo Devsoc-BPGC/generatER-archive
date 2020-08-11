@@ -3,14 +3,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 
+
 # Class that uses the Inspector class to inspect the .db file
 
 
 class Inspect:
     engine = None
     inspector = None
-    # Constructor that initializes the inspector class instance and engine
-    # from the path to the db file provided
 
     def __init__(self, path_to_db_file):
         self.engine = create_engine(path_to_db_file)
@@ -18,17 +17,17 @@ class Inspect:
 
     # Function to return details about columns, primary and foreign-keys of
     # all tables in the .db file
-    def getDetails(self):
-        tables_dict = self.inspector.get_table_names()
+    def get_details(self):
+        tables_list = self.inspector.get_table_names()
         result = {}
-        for i in range(len(tables_dict)):
-            table = tables_dict[i]
+        for i in range(len(tables_list)):
+            table = tables_list[i]
             key = 'Table:' + str(i+1)
-            result[key] = self.getColumnsForTable(table)
+            result[key] = self.get_columns_for_table(table)
         return result
 
     # Function that fetches the details about the columns of a particular table
-    def getColumnsForTable(self, table):
+    def get_columns_for_table(self, table):
         response = {
             'name': table
         }
@@ -43,7 +42,7 @@ class Inspect:
                 'is_primary_key': bool(column['primary_key'])
             }
             key = "Column-" + str(j + 1)
-            res = self.fetchFKs(table, res, fks)
+            res = self.fetch_fks(table, res, fks)
             all_columns[key] = res
         response['columns'] = all_columns
         return response
@@ -52,7 +51,7 @@ class Inspect:
     # details if column is a foreign-key
     # If column is not a foreign-key, it adds 'is_foreign_key':False to the
     # details about the column
-    def fetchFKs(self, table, column_dict, fks):
+    def fetch_fks(self, table, column_dict, fks):
         column_name = column_dict['name']
         if len(fks) == 0:
             column_dict['is_foreign_key'] = False
@@ -77,7 +76,7 @@ run the following code
 
 import pprint
 pp = pprint.PrettyPrinter()
-pp.pprint(Inspect('sqlite:///chinook.db').getDetails())
+pp.pprint(Inspect('sqlite:///chinook.db').get_details())
 """
 
 """
