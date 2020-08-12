@@ -20,10 +20,8 @@ class Inspect:
     def get_details(self):
         tables_list = self.inspector.get_table_names()
         result = {}
-        for i in range(len(tables_list)):
-            table = tables_list[i]
-            key = 'Table:' + str(i+1)
-            result[key] = self.get_columns_for_table(table)
+        for table in tables_list:
+            result[table] = self.get_columns_for_table(table)
         return result
 
     # Function that fetches the details about the columns of a particular table
@@ -34,16 +32,15 @@ class Inspect:
         columns = self.inspector.get_columns(table)
         fks = self.inspector.get_foreign_keys(table)
         all_columns = {}
-        for j in range(len(columns)):
-            column = columns[j]
+        for column in columns:
+            column_name = column['name']
             res = {
-                'name': column['name'],
+                'name': column_name,
                 'data_type': column['type'],
                 'is_primary_key': bool(column['primary_key'])
             }
-            key = "Column-" + str(j + 1)
             res = self.fetch_fks(table, res, fks)
-            all_columns[key] = res
+            all_columns[column_name] = res
         response['columns'] = all_columns
         return response
 
@@ -83,10 +80,10 @@ pp.pprint(Inspect('sqlite:///chinook.db').get_details())
 Format of the dictionary returned by getDetails() function:
 
 {
-   "Table:<table-number>":{
+   <table-name>:{
       "name":<name of the table: string>
       "columns":{
-         "Column-<column-number>":{
+         <column-name>:{
             "name":<name of the column: string>,
             "data_type":<SQL type of the column string>,
             "is_primary_key": bool,
