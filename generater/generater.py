@@ -15,50 +15,54 @@ class Inspect:
         self.engine = create_engine(path_to_db_file)
         self.inspector = reflection.Inspector.from_engine(self.engine)
 
-    # Function to return details about columns, primary and foreign-keys of
-    # all tables in the .db file
     def get_details(self):
+        """
+        Function to return details about columns, primary and foreign-keys of
+        all tables in the .db file
+        """
         tables_list = self.inspector.get_table_names()
         result = {}
         for table in tables_list:
             result[table] = self.get_columns_for_table(table)
         return result
 
-    # Function that fetches the details about the columns of a particular table
     def get_columns_for_table(self, table):
-        response = {
-            'name': table
-        }
+        """
+        Function that fetches the details about the columns of a particular
+        table
+        """
+        table_props = {}
         columns = self.inspector.get_columns(table)
         fks = self.inspector.get_foreign_keys(table)
         all_columns = {}
         for column in columns:
-            column_name = column['name']
-            res = {
-                'name': column_name,
+            col_name = column['name']
+            column_props = {
                 'data_type': column['type'],
                 'is_primary_key': bool(column['primary_key'])
             }
-            res = self.fetch_fks(table, res, fks)
-            all_columns[column_name] = res
-        response['columns'] = all_columns
-        return response
+            column_props = self.fetch_fks(table, column_props, fks, col_name)
+            all_columns[col_name] = column_props
+        table_props['columns'] = all_columns
+        return table_props
 
-    # Function that takes in details about a column and adds the relationship
-    # details if column is a foreign-key
-    # If column is not a foreign-key, it adds 'is_foreign_key':False to the
-    # details about the column
-    def fetch_fks(self, table, column_dict, fks):
-        column_name = column_dict['name']
+    def fetch_fks(self, table, column_dict, fks, column_name):
+        """
+        Function that takes in details about a column and adds the relationship
+        details if column is a foreign-key
+        If column is not a foreign-key, it adds 'is_foreign_key':False to the
+        details about the column
+        """
+
         if len(fks) == 0:
             column_dict['is_foreign_key'] = False
             return column_dict
-        for key in fks:
-            if column_name == key['constrained_columns'][0]:
+        for foreign_key in fks:
+            if column_name == foreign_key['constrained_columns'][0]:
                 column_dict['is_foreign_key'] = True
                 column_dict['relationship_to'] = {
-                    'table': key['referred_table'],
-                    'column': key['referred_columns'][0]
+                    'table': foreign_key['referred_table'],
+                    'column': foreign_key['referred_columns'][0]
                 }
             else:
                 column_dict['is_foreign_key'] = False
@@ -74,9 +78,7 @@ run the following code
 import pprint
 pp = pprint.PrettyPrinter()
 pp.pprint(Inspect('sqlite:///chinook.db').get_details())
-"""
 
-"""
 Format of the dictionary returned by getDetails() function:
 
 {
