@@ -103,3 +103,10 @@ ENV/
 
 # IDE settings
 .vscode/
+
+# Database and output files
+generater/chinook.db
+generater/test-db.db
+generater/ER.gv
+generater/ER.gv.pdf
+generater/data.json

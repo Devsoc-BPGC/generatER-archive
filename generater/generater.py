@@ -1,5 +1,6 @@
 """Main module."""
 
+import pprint
 from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 
@@ -69,36 +70,33 @@ class Inspect:
         return column_dict
 
 
-"""
-In case you want to find out the format of the dictionary being returned or
-want to test out the code, download the chinook.db file from the sqlite
-official website in the ./generater directory and
-run the following code
+# In case you want to find out the format of the dictionary being returned or
+# want to test out the code, download the chinook.db file from the sqlite
+# official website in the ./generater directory and
+# run the following code
 
-import pprint
-pp = pprint.PrettyPrinter()
-pp.pprint(Inspect('sqlite:///chinook.db').get_details())
+# pp = pprint.PrettyPrinter()
+# pp.pprint(Inspect('sqlite:///chinook.db').get_details())
 
-Format of the dictionary returned by getDetails() function:
+# Format of the dictionary returned by getDetails() function:
 
-{
-   <table-name>:{
-      "name":<name of the table: string>
-      "columns":{
-         <column-name>:{
-            "name":<name of the column: string>,
-            "data_type":<SQL type of the column string>,
-            "is_primary_key": bool,
-            "is_foreign_key": bool
+# {
+#     < table-name >: {
+#         "name": < name of the table: string >
+#         "columns": {
+#             < column-name >: {
+#                 "name": < name of the column: string > ,
+#                 "data_type": < SQL type of the column string > ,
+#                 "is_primary_key": bool,
+#                 "is_foreign_key": bool
 
-            if "is_foreign_key":True, it includes another field -
+#                 if "is_foreign_key": True, it includes another field -
 
-            "relationship_to":{
-               "table":<name of the table to which the foreign-key points>,
-               "column":<name of the column to which the foreign-key points>
-            }
-         }
-      }
-   }
-}
-"""
+#                 "relationship_to": {
+#                     "table": < name of the table to which the foreign-key points >,
+#                     "column": < name of the column to which the foreign-key points >
+#                 }
+#             }
+#         }
+#     }
+# }
