@@ -2,9 +2,8 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
-from sqlalchemy import create_engine, MetaData, Table,inspect
-from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOMANY, MANYTOONE
-from sqlalchemy_utils import get_mapper, get_class_by_table
+from sqlalchemy import MetaData, Table
+from sqlalchemy_utils import get_class_by_table
 from sqlalchemy.ext.automap import automap_base
 
 # Class that uses the Inspector class to inspect the .db file
@@ -27,7 +26,6 @@ class Inspect:
         result = {}
         for table in tables_list:
             result[table] = self.get_columns_for_table(table)
-        
         return result
 
     def get_columns_for_table(self, table):
@@ -38,7 +36,7 @@ class Inspect:
         metadata = MetaData(bind=self.engine,  reflect=True)
         Base = automap_base(metadata=metadata)
         Base.prepare()
-        relations=Table(table,metadata)
+        relations = Table(table, metadata)
         cl = get_class_by_table(Base, relations)
 
         table_props = {}
@@ -56,17 +54,17 @@ class Inspect:
 
         """
         This part fetches the type of relations
-        ____ISSUE: Not able to find out any relation other that ManyToOne and OneToMany
+        ____ISSUE: Not able to find out any relation other
+        ____that ManyToOne and OneToMany
         """
         try:
             for relation in cl.__mapper__.relationships:
                 column_props['relationship_info'] = {
                     'type': str(relation.direction)
                 }
-
-        except:  #code not working for relations other than manytoone and onetomany
+        except Exception:
             pass
-        
+# code not working for relations other than manytoone and onetomany
         table_props['columns'] = all_columns
         return table_props
 
@@ -92,6 +90,7 @@ class Inspect:
             else:
                 column_dict['is_foreign_key'] = False
         return column_dict
+
 
 """
 In case you want to find out the format of the dictionary being returned or
