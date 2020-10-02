@@ -56,6 +56,7 @@ class Inspect:
 
         """
         This part fetches the type of relations
+        ____ISSUE: Not able to find out any relation other that ManyToOne and OneToMany
         """
         try:
             for relation in cl.__mapper__.relationships:
@@ -91,19 +92,17 @@ class Inspect:
             else:
                 column_dict['is_foreign_key'] = False
         return column_dict
-"""
-    def fetch_rel()
-"""
+
 """
 In case you want to find out the format of the dictionary being returned or
 want to test out the code, download the chinook.db file from the sqlite
 official website in the ./generater directory and
 run the following code
-"""
+
 import pprint
 pp = pprint.PrettyPrinter()
 pp.pprint(Inspect('sqlite:///chinook.db').get_details())
-"""
+
 Format of the dictionary returned by getDetails() function:
 
 {
