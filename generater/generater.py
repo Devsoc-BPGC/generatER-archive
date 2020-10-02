@@ -122,7 +122,6 @@ Format of the dictionary returned by getDetails() function:
                "column":<name of the column to which the foreign-key points>
             }
             "relationship_info":{
-                'related to': <>,
                 'type': <manytoone or onetomany relation>
             }
          }
