@@ -1,8 +1,13 @@
 """Main module."""
 
-from sqlalchemy import create_engine
+from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.inspection import inspect
 from sqlalchemy.engine import reflection
-
+from sqlalchemy import create_engine, MetaData, Table,inspect
+from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOMANY, MANYTOONE
+from sqlalchemy_utils import get_mapper, get_class_by_table
+from sqlalchemy.ext.automap import automap_base
 
 # Class that uses the Inspector class to inspect the .db file
 
@@ -74,11 +79,11 @@ In case you want to find out the format of the dictionary being returned or
 want to test out the code, download the chinook.db file from the sqlite
 official website in the ./generater directory and
 run the following code
-
+"""
 import pprint
 pp = pprint.PrettyPrinter()
 pp.pprint(Inspect('sqlite:///chinook.db').get_details())
-
+"""
 Format of the dictionary returned by getDetails() function:
 
 {
