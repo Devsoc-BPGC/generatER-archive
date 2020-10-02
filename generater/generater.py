@@ -1,8 +1,6 @@
 """Main module."""
 
-from sqlalchemy import *
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.inspection import inspect
+from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 from sqlalchemy import create_engine, MetaData, Table,inspect
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOMANY, MANYTOONE
@@ -29,6 +27,7 @@ class Inspect:
         result = {}
         for table in tables_list:
             result[table] = self.get_columns_for_table(table)
+        
         return result
 
     def get_columns_for_table(self, table):
@@ -36,6 +35,12 @@ class Inspect:
         Function that fetches the details about the columns of a particular
         table
         """
+        metadata = MetaData(bind=self.engine,  reflect=True)
+        Base = automap_base(metadata=metadata)
+        Base.prepare()
+        relations=Table(table,metadata)
+        cl = get_class_by_table(Base, relations)
+
         table_props = {}
         columns = self.inspector.get_columns(table)
         fks = self.inspector.get_foreign_keys(table)
@@ -48,6 +53,19 @@ class Inspect:
             }
             column_props = self.fetch_fks(table, column_props, fks, col_name)
             all_columns[col_name] = column_props
+
+        """
+        This part fetches the type of relations
+        """
+        try:
+            for relation in cl.__mapper__.relationships:
+                column_props['relationship_info'] = {
+                    'type': str(relation.direction)
+                }
+
+        except:  #code not working for relations other than manytoone and onetomany
+            pass
+        
         table_props['columns'] = all_columns
         return table_props
 
@@ -64,6 +82,7 @@ class Inspect:
             return column_dict
         for foreign_key in fks:
             if column_name == foreign_key['constrained_columns'][0]:
+
                 column_dict['is_foreign_key'] = True
                 column_dict['relationship_to'] = {
                     'table': foreign_key['referred_table'],
@@ -72,8 +91,9 @@ class Inspect:
             else:
                 column_dict['is_foreign_key'] = False
         return column_dict
-
-
+"""
+    def fetch_rel()
+"""
 """
 In case you want to find out the format of the dictionary being returned or
 want to test out the code, download the chinook.db file from the sqlite
@@ -101,6 +121,10 @@ Format of the dictionary returned by getDetails() function:
             "relationship_to":{
                "table":<name of the table to which the foreign-key points>,
                "column":<name of the column to which the foreign-key points>
+            }
+            "relationship_info":{
+                'related to': <>,
+                'type': <manytoone or onetomany relation>
             }
          }
       }
