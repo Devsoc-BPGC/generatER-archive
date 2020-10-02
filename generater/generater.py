@@ -2,7 +2,9 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
-
+from sqlalchemy import MetaData, Table
+from sqlalchemy_utils import get_class_by_table
+from sqlalchemy.ext.automap import automap_base
 
 # Class that uses the Inspector class to inspect the .db file
 
@@ -31,6 +33,12 @@ class Inspect:
         Function that fetches the details about the columns of a particular
         table
         """
+        metadata = MetaData(bind=self.engine,  reflect=True)
+        Base = automap_base(metadata=metadata)
+        Base.prepare()
+        relations = Table(table, metadata)
+        cl = get_class_by_table(Base, relations)
+
         table_props = {}
         columns = self.inspector.get_columns(table)
         fks = self.inspector.get_foreign_keys(table)
@@ -43,6 +51,20 @@ class Inspect:
             }
             column_props = self.fetch_fks(table, column_props, fks, col_name)
             all_columns[col_name] = column_props
+
+        """
+        This part fetches the type of relations
+        ____ISSUE: Not able to find out any relation other
+        ____that ManyToOne and OneToMany
+        """
+        try:
+            for relation in cl.__mapper__.relationships:
+                column_props['relationship_info'] = {
+                    'type': str(relation.direction)
+                }
+        except Exception:
+            pass
+# code not working for relations other than manytoone and onetomany
         table_props['columns'] = all_columns
         return table_props
 
@@ -59,6 +81,7 @@ class Inspect:
             return column_dict
         for foreign_key in fks:
             if column_name == foreign_key['constrained_columns'][0]:
+
                 column_dict['is_foreign_key'] = True
                 column_dict['relationship_to'] = {
                     'table': foreign_key['referred_table'],
@@ -96,6 +119,9 @@ Format of the dictionary returned by getDetails() function:
             "relationship_to":{
                "table":<name of the table to which the foreign-key points>,
                "column":<name of the column to which the foreign-key points>
+            }
+            "relationship_info":{
+                'type': <manytoone or onetomany relation>
             }
          }
       }
